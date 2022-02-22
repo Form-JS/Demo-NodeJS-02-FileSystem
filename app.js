@@ -65,4 +65,41 @@ fs.stat(filename, (error, stats) => {
 
 
 // Utilisation des flux
-fs.open(filename, '');
+fs.open(filename, 'r+', (error, fd) => {
+
+    const fileSize = fs.statSync(filename).size;
+
+    for (let position = 0; position < fileSize; position += 10) {
+        const buffer = Buffer.alloc(10);
+
+        // Les lectures sont asynchrone !
+        fs.readSync(fd, buffer, 0, buffer.length, position, (error, bytes) => {
+
+            if (error) {
+                console.error();
+                return;
+            }
+
+            console.log(`Nombre de bytes lu : ${bytes}`);
+
+            if (bytes > 0) {
+                const data = buffer.slice(0, bytes);
+                console.log(data.toString('utf-8'));
+            }
+        });
+    }
+});
+
+
+
+// Lecture d'un fichier JSON (Sans utiliser "require")
+fs.readFile('./data/data.json', (error, data) => {
+
+    const dataText = data.toString('utf-8');
+    console.log(dataText);
+
+    const dataJson = JSON.parse(dataText);
+    console.log(dataJson);
+
+    console.log('');
+});
